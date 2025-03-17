@@ -7,7 +7,6 @@
 
 using namespace std;
 
-//cambio 12345
 //TADS************************************************************
 // TAD Imagen
 struct Imagen {
