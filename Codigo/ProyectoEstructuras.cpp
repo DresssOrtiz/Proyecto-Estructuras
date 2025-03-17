@@ -2,68 +2,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <numeric>
+#include "imagen.h"
+#include "volumen.h"
+#include "proyeccion.h"
 
 using namespace std;
-
-//TADS************************************************************
-// TAD Imagen
-struct Imagen {
-    string nombre_imagen;
-    int alto;
-    int ancho;
-    vector<vector<int> > pixeles;
-
-    //Operaciones Imagen
-    string obtenerNombre_imagen() { return nombre_imagen; }
-    int obtenerAlto() { return alto; }
-    int obtenerAncho() { return ancho; }
-    void fijarNombre_imagen(string xNombre_imagen) { nombre_imagen = xNombre_imagen; }
-    void fijarDimensiones(int xAncho, int xAlto) {
-        ancho = xAncho;
-        alto = xAlto;
-        pixeles = vector<vector<int> >(alto, vector<int>(ancho, 0)); // Inicializar la matriz de pÃ­xeles
-    }
-    void fijarPixeles(const vector<vector<int> >& xPixeles) { pixeles = xPixeles; }
-};
-
-// TAD Volumen
-struct Volumen {
-    string nombre_volumen;
-    vector<Imagen> imagenes;
-    vector<Imagen> proyecciones;
-
-    // Operaciones Volumen
-    string obtenerNombre_volumen() { return nombre_volumen; }
-    vector<Imagen> obtenerImagenes() { return imagenes; }
-    vector<Imagen> obtenerProyecciones() { return proyecciones; }
-    void fijarNombre_volumen(string xNombre_volumen) { nombre_volumen = xNombre_volumen; }
-    void fijarImagenes(const vector<Imagen>& xImagenes) { imagenes = xImagenes; }
-    void fijarProyecciones(const vector<Imagen>& xProyecciones) { proyecciones = xProyecciones; }
-};
-
-// TAD Proyección
-struct Proyeccion {
-    string nombre_proyeccion;
-    Volumen volumen;
-    string direccion;
-    string criterio;
-    Imagen resultado;
-
-    // Operaciones Proyección
-    string obtenerNombre_proyeccion() { return nombre_proyeccion; }
-    Volumen obtenerVolumen() { return volumen; }
-    string obtenerDireccion() { return direccion; }
-    string obtenerCriterio() { return criterio; }
-    Imagen obtenerResultado() { return resultado; }
-    void fijarNombre_proyeccion(string xNombre_proyeccion) { nombre_proyeccion = xNombre_proyeccion; }
-    void fijarVolumen(Volumen xVolumen) { volumen = xVolumen; }
-    void fijarDireccion(string xDireccion) { direccion = xDireccion; }
-    void fijarCriterio(string xCriterio) { criterio = xCriterio; }
-    void fijarResultado(Imagen xResultado) { resultado = xResultado; }
-};
-
 
 // Variables globales**********************************************************************************
 Imagen imagenCargada;
@@ -73,6 +16,11 @@ Volumen volumenCargado;
 bool hayVolumenCargado = false;
 
 void proyeccion2D(string direccion, string criterio, string nombreArchivo);
+void cargarImagen();
+void cargarVolumen();
+void infoVolumen();
+void solicitarProyeccion2D();
+
 //Comandos*****************************************************************
 void mostrarAyuda() {
     cout << "Comandos disponibles:\n";
