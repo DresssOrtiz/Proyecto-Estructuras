@@ -151,7 +151,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             for (int z = 0; z < profundidad; z++) {
                 vector<int> valores;
                 for (int x = 0; x < ancho; x++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].pixeles[y][x]);
+                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
                 }
                 resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -165,7 +165,8 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             for (int z = 0; z < profundidad; z++) {
                 vector<int> valores;
                 for (int y = 0; y < alto; y++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].pixeles[y][x]);
+                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
+
                 }
                 resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -179,7 +180,8 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             for (int x = 0; x < ancho; x++) {
                 vector<int> valores;
                 for (int z = 0; z < profundidad; z++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].pixeles[y][x]);
+                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
+
                 }
                 resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
