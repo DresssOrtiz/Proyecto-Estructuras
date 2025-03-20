@@ -16,7 +16,7 @@ public:
 
     // Operaciones
     string obtenerNombre_volumen();
-    vector<Imagen> obtenerImagenes();
+    const vector<Imagen>& obtenerImagenes();
     vector<Imagen> obtenerProyecciones();
     void fijarNombre_volumen(string xNombre_volumen);
     void fijarImagenes(const vector<Imagen>& xImagenes);
