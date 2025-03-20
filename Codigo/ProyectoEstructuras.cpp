@@ -133,6 +133,17 @@ void cargarVolumen() {
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
 
+void infoImagen() {
+    if (!hayImagenCargada) {
+        cout << "No hay una imagen cargada en memoria.\n";
+        return;
+    }
+
+    cout << "Imagen cargada en memoria: " << imagenCargada.obtenerNombre_imagen() 
+         << ", ancho: " << imagenCargada.obtenerAncho() 
+         << ", alto: " << imagenCargada.obtenerAlto() << ".\n";
+}
+
 
 void infoVolumen() {
     if (!hayVolumenCargado) {
