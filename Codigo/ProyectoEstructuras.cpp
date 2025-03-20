@@ -84,7 +84,7 @@ void cargarVolumen() {
     cin >> cantidadImagenes;
 
     if (cantidadImagenes < 1 || cantidadImagenes > 99) {
-        cout << "Cantidad de imágenes inválida. Debe estar entre 1 y 99.\n";
+        cout << "Cantidad de imagenes invalida. Debe estar entre 1 y 99.\n";
         return;
     }
 
@@ -200,7 +200,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             }
         }
     } else {
-        cout << "Direccion invÃ¡lida. Use 'x', 'y' o 'z'.\n";
+        cout << "Direccion invalida. Use 'x', 'y' o 'z'.\n";
         return;
     }
 
@@ -243,13 +243,13 @@ void mostrarAyudaComando(const string& comando) {
     if (comando == "cargar_imagen") {
         cout << "Para cargar una imagen ingrese el comando 'cargar_imagen nombre_imagen.pgm'.\n";
     } else if (comando == "info_imagen") {
-        cout << "Ingrese el comando 'info_imagen' para obtener informaciÃ³n de la imagen cargada.\n";
+        cout << "Ingrese el comando 'info_imagen' para obtener informacion de la imagen cargada.\n";
     } else if (comando == "cargar_volumen") {
-        cout << "Ingrese el comando 'cargar_volumen nombre_base n_im' para cargar un volumen de imÃ¡genes.\n";
+        cout << "Ingrese el comando 'cargar_volumen nombre_base n_im' para cargar un volumen de imagenes.\n";
     } else if (comando == "info_volumen") {
-        cout << "Ingrese el comando 'info_volumen' para obtener informaciÃ³n del volumen cargado.\n";
+        cout << "Ingrese el comando 'info_volumen' para obtener informacion del volumen cargado.\n";
     } else if (comando == "proyeccion2D") {
-        cout << "Ingrese el comando 'proyeccion2D direcciÃ³n criterio nombre_archivo.pgm' para generar una proyecciÃ³n 2D.\n";
+        cout << "Ingrese el comando 'proyeccion2D direccion criterio nombre_archivo.pgm' para generar una proyeccion 2D.\n";
     } else {
         cout << "Comando no reconocido. Escriba 'ayuda' para ver la lista de comandos.\n";
     }
@@ -281,11 +281,11 @@ int main() {
         } else if (comando == "ayuda info_imagen") {
             cout << "Ingrese el comando 'info_imagen' para obtener información de la imagen cargada.\n";
         } else if (comando == "ayuda cargar_volumen") {
-            cout << "Ingrese el comando 'cargar_volumen nombre_base n_im' para cargar un volumen de imágenes.\n";
+            cout << "Ingrese el comando 'cargar_volumen nombre_base n_im' para cargar un volumen de imagenes.\n";
         } else if (comando == "ayuda info_volumen") {
-            cout << "Ingrese el comando 'info_volumen' para obtener información del volumen cargado.\n";
+            cout << "Ingrese el comando 'info_volumen' para obtener informacion del volumen cargado.\n";
         } else if (comando == "ayuda proyeccion2D") {
-            cout << "Ingrese el comando 'proyeccion2D dirección criterio nombre_archivo.pgm' para generar una proyección 2D.\n";
+            cout << "Ingrese el comando 'proyeccion2D dirección criterio nombre_archivo.pgm' para generar una proyeccion 2D.\n";
         } else if (comando == "salir") {
             break;
         } else {
