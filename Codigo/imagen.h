@@ -21,6 +21,7 @@ public:
     string obtenerNombre_imagen();
     int obtenerAlto();
     int obtenerAncho();
+    vector<vector<int>> obtenerPixeles() { return pixeles; }
     void fijarNombre_imagen(string xNombre_imagen);
     void fijarDimensiones(int xAncho, int xAlto);
     void fijarPixeles(const vector<vector<int>>& xPixeles);
