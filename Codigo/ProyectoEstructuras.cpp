@@ -160,19 +160,22 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         cout << "El volumen aun no ha sido cargado en memoria.\n";
         return;
     }
-
-    int ancho = volumenCargado.obtenerImagenes()[0].obtenerAncho();
-    int alto = volumenCargado.obtenerImagenes()[0].obtenerAlto();
-    int profundidad = volumenCargado.obtenerImagenes().size();
+    const vector<Imagen>& imagenes = volumenCargado.obtenerImagenes();
+    int ancho = imagenes[0].obtenerAncho();
+    int alto = imagenes[0].obtenerAlto();
+    int profundidad = imagenes.size();
 
     vector<vector<int>> resultado;
+    vector<int> valores;  // Se declara fuera del bucle para reutilizar la memoria
+
     if (direccion == "x") {
         resultado.resize(alto, vector<int>(profundidad, 0));
         for (int y = 0; y < alto; y++) {
             for (int z = 0; z < profundidad; z++) {
-                vector<int> valores;
+                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
+                valores.clear();  // Se reutiliza en cada iteración
                 for (int x = 0; x < ancho; x++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
+                    valores.push_back(pixeles[y][x]);
                 }
                 resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -184,10 +187,10 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         resultado.resize(ancho, vector<int>(profundidad, 0));
         for (int x = 0; x < ancho; x++) {
             for (int z = 0; z < profundidad; z++) {
-                vector<int> valores;
+                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
+                valores.clear();
                 for (int y = 0; y < alto; y++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
-
+                    valores.push_back(pixeles[y][x]);
                 }
                 resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -199,10 +202,10 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         resultado.resize(alto, vector<int>(ancho, 0));
         for (int y = 0; y < alto; y++) {
             for (int x = 0; x < ancho; x++) {
-                vector<int> valores;
+                valores.clear();
                 for (int z = 0; z < profundidad; z++) {
-                    valores.push_back(volumenCargado.obtenerImagenes()[z].obtenerPixeles()[y][x]);
-
+                    const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
+                    valores.push_back(pixeles[y][x]);
                 }
                 resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -231,6 +234,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
 
+
 void solicitarProyeccion2D() {
     if (!hayVolumenCargado) {
         cout << "El volumen aun no ha sido cargado en memoria.\n";
@@ -249,7 +253,7 @@ void solicitarProyeccion2D() {
     
     proyeccion2D(direccion, criterio, nombreArchivo);
 }
-// FunciÃ³n para manejar ayuda especÃ­fica por comando
+
 void mostrarAyudaComando(const string& comando) {
     if (comando == "cargar_imagen") {
         cout << "Para cargar una imagen ingrese el comando 'cargar_imagen nombre_imagen.pgm'.\n";
@@ -283,7 +287,7 @@ int main() {
             infoImagen();
         } else if (comando == "info_volumen") {
             infoVolumen();
-        } else if (comando == "proyeccion2D") {7
+        } else if (comando == "proyeccion2D") {
         	solicitarProyeccion2D();
         } else if (comando == "ayuda") {
             mostrarAyuda();
