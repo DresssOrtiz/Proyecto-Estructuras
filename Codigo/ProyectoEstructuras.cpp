@@ -46,28 +46,33 @@ void cargarImagen() {
     }
 
     string formato;
-    int maxValor;
-    archivo >> formato;
+    int ancho, alto, maxValor;
 
+    archivo >> formato;
     if (formato != "P2") {
         cout << "Formato de imagen incorrecto.\n";
+        archivo.close();
         return;
     }
 
-    archivo >> imagenCargada.ancho >> imagenCargada.alto >> maxValor;
-    imagenCargada.nombre_imagen = nombreArchivo;
-    imagenCargada.pixeles.resize(imagenCargada.alto, vector<int>(imagenCargada.ancho));
+    archivo >> ancho >> alto >> maxValor;
+    imagenCargada.fijarDimensiones(ancho, alto);
+    imagenCargada.fijarNombre_imagen(nombreArchivo);
 
-    for (int i = 0; i < imagenCargada.alto; i++) {
-        for (int j = 0; j < imagenCargada.ancho; j++) {
-            archivo >> imagenCargada.pixeles[i][j];
+    // Leer los píxeles de la imagen
+    vector<vector<int>> pixeles(alto, vector<int>(ancho));
+    for (int i = 0; i < alto; i++) {
+        for (int j = 0; j < ancho; j++) {
+            archivo >> pixeles[i][j];
         }
     }
+    imagenCargada.fijarPixeles(pixeles);
 
     archivo.close();
     hayImagenCargada = true;
     cout << "La imagen " << nombreArchivo << " ha sido cargada.\n";
 }
+
 
 void cargarVolumen() {
     string nombreBase;
@@ -79,12 +84,12 @@ void cargarVolumen() {
     cin >> cantidadImagenes;
 
     if (cantidadImagenes < 1 || cantidadImagenes > 99) {
-        cout << "Cantidad de imÃ¡genes invÃ¡lida. Debe estar entre 1 y 99.\n";
+        cout << "Cantidad de imágenes inválida. Debe estar entre 1 y 99.\n";
         return;
     }
 
-    volumenCargado.nombre_volumen = nombreBase;
-    volumenCargado.imagenes.clear();
+    volumenCargado.fijarNombre_volumen(nombreBase);
+    vector<Imagen> imagenes;
 
     for (int i = 1; i <= cantidadImagenes; i++) {
         string nombreArchivo = nombreBase + (i < 10 ? "0" : "") + to_string(i) + ".pgm";
@@ -92,37 +97,42 @@ void cargarVolumen() {
 
         if (!archivo) {
             cout << "Error al cargar el archivo: " << nombreArchivo << ".\n";
-            volumenCargado.imagenes.clear();
             return;
         }
 
-        Imagen img;
         string formato;
-        int maxValor;
+        int ancho, alto, maxValor;
 
         archivo >> formato;
         if (formato != "P2") {
             cout << "Formato incorrecto en " << nombreArchivo << ".\n";
+            archivo.close();
             return;
         }
 
-        archivo >> img.ancho >> img.alto >> maxValor;
-        img.nombre_imagen = nombreArchivo;
-        img.pixeles.resize(img.alto, vector<int>(img.ancho));
+        archivo >> ancho >> alto >> maxValor;
 
-        for (int y = 0; y < img.alto; y++) {
-            for (int x = 0; x < img.ancho; x++) {
-                archivo >> img.pixeles[y][x];
+        Imagen img;
+        img.fijarNombre_imagen(nombreArchivo);
+        img.fijarDimensiones(ancho, alto);
+
+        vector<vector<int>> pixeles(alto, vector<int>(ancho));
+        for (int y = 0; y < alto; y++) {
+            for (int x = 0; x < ancho; x++) {
+                archivo >> pixeles[y][x];
             }
         }
+        img.fijarPixeles(pixeles);
 
         archivo.close();
-        volumenCargado.imagenes.push_back(img);
+        imagenes.push_back(img);
     }
 
+    volumenCargado.fijarImagenes(imagenes);
     hayVolumenCargado = true;
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
+
 
 void infoVolumen() {
     if (!hayVolumenCargado) {
