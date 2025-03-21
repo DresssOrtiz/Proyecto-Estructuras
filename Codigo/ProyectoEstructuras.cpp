@@ -93,10 +93,14 @@ void cargarVolumen() {
     volumenCargado.fijarNombre_volumen(nombreBase);
     vector<Imagen> imagenes;
 
-    for (int i = 1; i <= cantidadImagenes; i++) {
-        string nombreArchivo = nombreBase + (i < 10 ? "0" : "") + to_string(i) + ".pgm";
-        ifstream archivo(nombreArchivo);
+    int numero = 2; 
 
+    for (int i = 0; i < cantidadImagenes; i++) {
+        string numeroStr = (numero < 10 ? "0" : "") + to_string(numero);
+        string nombreArchivo = nombreBase + numeroStr + ".pgm";
+        numero += 2;
+
+        ifstream archivo(nombreArchivo);
         if (!archivo) {
             cout << "Error al cargar el archivo: " << nombreArchivo << ".\n";
             return;
@@ -124,8 +128,8 @@ void cargarVolumen() {
                 archivo >> pixeles[y][x];
             }
         }
-        img.fijarPixeles(pixeles);
 
+        img.fijarPixeles(pixeles);
         archivo.close();
         imagenes.push_back(img);
     }
@@ -134,6 +138,7 @@ void cargarVolumen() {
     hayVolumenCargado = true;
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
+
 
 void infoImagen() {
     if (!hayImagenCargada) {
