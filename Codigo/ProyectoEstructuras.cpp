@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <numeric>
 #include "imagen.h"
 #include "volumen.h"
 #include "proyeccion.h"
