@@ -167,66 +167,78 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         cout << "El volumen aun no ha sido cargado en memoria.\n";
         return;
     }
+
     const vector<Imagen>& imagenes = volumenCargado.obtenerImagenes();
-    int ancho = imagenes[0].obtenerAncho();
-    int alto = imagenes[0].obtenerAlto();
+
+    // Obtener tamaño máximo del volumen
+    int anchoMax = 0, altoMax = 0;
+    for (const Imagen& img : imagenes) {
+        if (img.obtenerAncho() > anchoMax) anchoMax = img.obtenerAncho();
+        if (img.obtenerAlto() > altoMax) altoMax = img.obtenerAlto();
+    }
     int profundidad = imagenes.size();
 
     vector<vector<int>> resultado;
     vector<int> valores;
 
     if (direccion == "x") {
-        resultado.resize(alto, vector<int>(profundidad, 0));
-        for (int y = 0; y < alto; y++) {
+        resultado.resize(altoMax, vector<int>(profundidad, 0));
+        for (int y = 0; y < altoMax; y++) {
             for (int z = 0; z < profundidad; z++) {
-                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
+                const auto& pixeles = imagenes[z].obtenerPixeles();
                 valores.clear();
-                for (int x = 0; x < ancho; x++) {
-                    valores.push_back(pixeles[y][x]);
+                for (int x = 0; x < (int)pixeles[0].size(); x++) {
+                    if (y < (int)pixeles.size() && x < (int)pixeles[y].size()) {
+                        valores.push_back(pixeles[y][x]);
+                    }
                 }
-                if (criterio == "mediana") {
-                    sort(valores.begin(), valores.end());
+                if (!valores.empty()) {
+                    if (criterio == "mediana") sort(valores.begin(), valores.end());
+                    resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
+                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
+                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
+                        : valores[valores.size() / 2];
                 }
-                resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                                   : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                                   : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                                   : valores[valores.size() / 2];
             }
         }
     } else if (direccion == "y") {
-        resultado.resize(ancho, vector<int>(profundidad, 0));
-        for (int x = 0; x < ancho; x++) {
+        resultado.resize(anchoMax, vector<int>(profundidad, 0));
+        for (int x = 0; x < anchoMax; x++) {
             for (int z = 0; z < profundidad; z++) {
-                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
+                const auto& pixeles = imagenes[z].obtenerPixeles();
                 valores.clear();
-                for (int y = 0; y < alto; y++) {
-                    valores.push_back(pixeles[y][x]);
+                for (int y = 0; y < (int)pixeles.size(); y++) {
+                    if (x < (int)pixeles[y].size()) {
+                        valores.push_back(pixeles[y][x]);
+                    }
                 }
-                if (criterio == "mediana") {
-                    sort(valores.begin(), valores.end());
+                if (!valores.empty()) {
+                    if (criterio == "mediana") sort(valores.begin(), valores.end());
+                    resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
+                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
+                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
+                        : valores[valores.size() / 2];
                 }
-                resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                                   : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                                   : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                                   : valores[valores.size() / 2];
             }
         }
     } else if (direccion == "z") {
-        resultado.resize(alto, vector<int>(ancho, 0));
-        for (int y = 0; y < alto; y++) {
-            for (int x = 0; x < ancho; x++) {
+        resultado.resize(altoMax, vector<int>(anchoMax, 0));
+        for (int y = 0; y < altoMax; y++) {
+            for (int x = 0; x < anchoMax; x++) {
                 valores.clear();
                 for (int z = 0; z < profundidad; z++) {
-                    const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
-                    valores.push_back(pixeles[y][x]);
+                    const auto& pixeles = imagenes[z].obtenerPixeles();
+                    if (y < (int)pixeles.size() && x < (int)pixeles[y].size()) {
+                        valores.push_back(pixeles[y][x]);
+                    }
                 }
-                if (criterio == "mediana") {
-                    sort(valores.begin(), valores.end());
+                if (!valores.empty()) {
+                    if (criterio == "mediana") sort(valores.begin(), valores.end());
+                    resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
+                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
+                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
+                        : valores[valores.size() / 2];
                 }
-                resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                                   : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                                   : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                                   : valores[valores.size() / 2];
             }
         }
     } else {
@@ -239,6 +251,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         cout << "La proyeccion 2D del volumen en memoria no ha podido ser generada.\n";
         return;
     }
+
     archivo << "P2\n" << resultado[0].size() << " " << resultado.size() << "\n255\n";
     for (const auto& fila : resultado) {
         for (int valor : fila) {
@@ -249,6 +262,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     archivo.close();
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
+
 
 void solicitarProyeccion2D() {
     if (!hayVolumenCargado) {
