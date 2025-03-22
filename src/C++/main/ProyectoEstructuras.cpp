@@ -156,11 +156,17 @@ void infoVolumen() {
         return;
     }
 
+    const vector<Imagen>& imagenes = volumenCargado.obtenerImagenes();
     cout << "Volumen cargado en memoria: " << volumenCargado.obtenerNombre_volumen()
-         << ", tamano: " << volumenCargado.obtenerImagenes().size()
-         << ", ancho: " << volumenCargado.obtenerImagenes()[0].obtenerAncho()
-         << ", alto: " << volumenCargado.obtenerImagenes()[0].obtenerAlto() << ".\n";
+         << ", cantidad de imagenes: " << imagenes.size() << ".\n";
+
+    for (int i = 0; i < imagenes.size(); i++) {
+        cout << "  Imagen " << i + 1 << ": " << imagenes[i].obtenerNombre_imagen()
+             << ", ancho: " << imagenes[i].obtenerAncho()
+             << ", alto: " << imagenes[i].obtenerAlto() << ".\n";
+    }
 }
+
 
 void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     if (!hayVolumenCargado) {
