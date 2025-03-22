@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <numeric>
 #include "imagen.h"
 #include "volumen.h"
 #include "proyeccion.h"
@@ -91,10 +93,14 @@ void cargarVolumen() {
     volumenCargado.fijarNombre_volumen(nombreBase);
     vector<Imagen> imagenes;
 
-    for (int i = 1; i <= cantidadImagenes; i++) {
-        string nombreArchivo = nombreBase + (i < 10 ? "0" : "") + to_string(i) + ".pgm";
-        ifstream archivo(nombreArchivo);
+    int numero = 2; 
 
+    for (int i = 0; i < cantidadImagenes; i++) {
+        string numeroStr = (numero < 10 ? "0" : "") + to_string(numero);
+        string nombreArchivo = nombreBase + numeroStr + ".pgm";
+        numero += 2;
+
+        ifstream archivo(nombreArchivo);
         if (!archivo) {
             cout << "Error al cargar el archivo: " << nombreArchivo << ".\n";
             return;
@@ -122,8 +128,8 @@ void cargarVolumen() {
                 archivo >> pixeles[y][x];
             }
         }
-        img.fijarPixeles(pixeles);
 
+        img.fijarPixeles(pixeles);
         archivo.close();
         imagenes.push_back(img);
     }
@@ -132,6 +138,7 @@ void cargarVolumen() {
     hayVolumenCargado = true;
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
+
 
 void infoImagen() {
     if (!hayImagenCargada) {
@@ -166,16 +173,19 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     int profundidad = imagenes.size();
 
     vector<vector<int>> resultado;
-    vector<int> valores;  // Se declara fuera del bucle para reutilizar la memoria
+    vector<int> valores;
 
     if (direccion == "x") {
         resultado.resize(alto, vector<int>(profundidad, 0));
         for (int y = 0; y < alto; y++) {
             for (int z = 0; z < profundidad; z++) {
                 const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
-                valores.clear();  // Se reutiliza en cada iteración
+                valores.clear();
                 for (int x = 0; x < ancho; x++) {
                     valores.push_back(pixeles[y][x]);
+                }
+                if (criterio == "mediana") {
+                    sort(valores.begin(), valores.end());
                 }
                 resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -192,6 +202,9 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
                 for (int y = 0; y < alto; y++) {
                     valores.push_back(pixeles[y][x]);
                 }
+                if (criterio == "mediana") {
+                    sort(valores.begin(), valores.end());
+                }
                 resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
                                    : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
@@ -206,6 +219,9 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
                 for (int z = 0; z < profundidad; z++) {
                     const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
                     valores.push_back(pixeles[y][x]);
+                }
+                if (criterio == "mediana") {
+                    sort(valores.begin(), valores.end());
                 }
                 resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
                                    : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
@@ -233,7 +249,6 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     archivo.close();
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
-
 
 void solicitarProyeccion2D() {
     if (!hayVolumenCargado) {
@@ -309,4 +324,3 @@ int main() {
     }
     return 0;
 }
-
