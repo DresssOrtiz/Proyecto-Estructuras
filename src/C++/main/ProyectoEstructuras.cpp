@@ -172,9 +172,9 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     const vector<Imagen>& imagenes = volumenCargado.obtenerImagenes();
 
     int anchoMax = 0, altoMax = 0;
-    for (const Imagen& img : imagenes) {
-        if (img.obtenerAncho() > anchoMax) anchoMax = img.obtenerAncho();
-        if (img.obtenerAlto() > altoMax) altoMax = img.obtenerAlto();
+    for (int i = 0; i < imagenes.size(); i++) {
+        if (imagenes[i].obtenerAncho() > anchoMax) anchoMax = imagenes[i].obtenerAncho();
+        if (imagenes[i].obtenerAlto() > altoMax) altoMax = imagenes[i].obtenerAlto();
     }
     int profundidad = imagenes.size();
 
@@ -185,7 +185,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         resultado = vector<vector<int>>(altoMax, vector<int>(profundidad, 0));
         for (int y = 0; y < altoMax; y++) {
             for (int z = 0; z < profundidad; z++) {
-                const auto& pixeles = imagenes[z].obtenerPixeles();
+                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
                 valores.clear();
                 for (int x = 0; x < (int)pixeles[0].size(); x++) {
                     if (y < (int)pixeles.size() && x < (int)pixeles[y].size()) {
@@ -205,7 +205,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
         resultado = vector<vector<int>>(anchoMax, vector<int>(profundidad, 0));
         for (int x = 0; x < anchoMax; x++) {
             for (int z = 0; z < profundidad; z++) {
-                const auto& pixeles = imagenes[z].obtenerPixeles();
+                const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
                 valores.clear();
                 for (int y = 0; y < (int)pixeles.size(); y++) {
                     if (x < (int)pixeles[y].size()) {
@@ -227,7 +227,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             for (int x = 0; x < anchoMax; x++) {
                 valores.clear();
                 for (int z = 0; z < profundidad; z++) {
-                    const auto& pixeles = imagenes[z].obtenerPixeles();
+                    const vector<vector<int>>& pixeles = imagenes[z].obtenerPixeles();
                     if (y < (int)pixeles.size() && x < (int)pixeles[y].size()) {
                         valores.push_back(pixeles[y][x]);
                     }
@@ -253,15 +253,17 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     }
 
     archivo << "P2\n" << resultado[0].size() << " " << resultado.size() << "\n255\n";
-    for (const auto& fila : resultado) {
-        for (int valor : fila) {
-            archivo << valor << " ";
+    for (int i = 0; i < resultado.size(); i++) {
+        for (int j = 0; j < resultado[i].size(); j++) {
+            archivo << resultado[i][j] << " ";
         }
         archivo << "\n";
     }
+
     archivo.close();
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
+
 
 void solicitarProyeccion2D() {
     if (!hayVolumenCargado) {
