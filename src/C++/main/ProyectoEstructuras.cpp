@@ -61,7 +61,6 @@ void cargarImagen() {
     imagenCargada.fijarDimensiones(ancho, alto);
     imagenCargada.fijarNombre_imagen(nombreArchivo);
 
-    // Leer los píxeles de la imagen
     vector<vector<int>> pixeles(alto, vector<int>(ancho));
     for (int i = 0; i < alto; i++) {
         for (int j = 0; j < ancho; j++) {
@@ -74,7 +73,6 @@ void cargarImagen() {
     hayImagenCargada = true;
     cout << "La imagen " << nombreArchivo << " ha sido cargada.\n";
 }
-
 
 void cargarVolumen() {
     string nombreBase;
@@ -93,7 +91,7 @@ void cargarVolumen() {
     volumenCargado.fijarNombre_volumen(nombreBase);
     vector<Imagen> imagenes;
 
-    int numero = 2; 
+    int numero = 2;
 
     for (int i = 0; i < cantidadImagenes; i++) {
         string numeroStr = (numero < 10 ? "0" : "") + to_string(numero);
@@ -139,18 +137,16 @@ void cargarVolumen() {
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
 
-
 void infoImagen() {
     if (!hayImagenCargada) {
         cout << "No hay una imagen cargada en memoria.\n";
         return;
     }
 
-    cout << "Imagen cargada en memoria: " << imagenCargada.obtenerNombre_imagen() 
-         << ", ancho: " << imagenCargada.obtenerAncho() 
+    cout << "Imagen cargada en memoria: " << imagenCargada.obtenerNombre_imagen()
+         << ", ancho: " << imagenCargada.obtenerAncho()
          << ", alto: " << imagenCargada.obtenerAlto() << ".\n";
 }
-
 
 void infoVolumen() {
     if (!hayVolumenCargado) {
@@ -158,8 +154,10 @@ void infoVolumen() {
         return;
     }
 
-    cout << "Volumen cargado en memoria: " << volumenCargado.obtenerNombre_volumen() << ", tamano: " << volumenCargado.obtenerImagenes().size()
-         << ", ancho: " << volumenCargado.obtenerImagenes()[0].obtenerAncho() << ", alto: " << volumenCargado.obtenerImagenes()[0].obtenerAlto() << ".\n";
+    cout << "Volumen cargado en memoria: " << volumenCargado.obtenerNombre_volumen()
+         << ", tamano: " << volumenCargado.obtenerImagenes().size()
+         << ", ancho: " << volumenCargado.obtenerImagenes()[0].obtenerAncho()
+         << ", alto: " << volumenCargado.obtenerImagenes()[0].obtenerAlto() << ".\n";
 }
 
 void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
@@ -170,7 +168,6 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
 
     const vector<Imagen>& imagenes = volumenCargado.obtenerImagenes();
 
-    // Obtener tamaño máximo del volumen
     int anchoMax = 0, altoMax = 0;
     for (const Imagen& img : imagenes) {
         if (img.obtenerAncho() > anchoMax) anchoMax = img.obtenerAncho();
@@ -182,7 +179,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     vector<int> valores;
 
     if (direccion == "x") {
-        resultado.resize(altoMax, vector<int>(profundidad, 0));
+        resultado = vector<vector<int>>(altoMax, vector<int>(profundidad, 0));
         for (int y = 0; y < altoMax; y++) {
             for (int z = 0; z < profundidad; z++) {
                 const auto& pixeles = imagenes[z].obtenerPixeles();
@@ -202,7 +199,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             }
         }
     } else if (direccion == "y") {
-        resultado.resize(anchoMax, vector<int>(profundidad, 0));
+        resultado = vector<vector<int>>(anchoMax, vector<int>(profundidad, 0));
         for (int x = 0; x < anchoMax; x++) {
             for (int z = 0; z < profundidad; z++) {
                 const auto& pixeles = imagenes[z].obtenerPixeles();
@@ -222,7 +219,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
             }
         }
     } else if (direccion == "z") {
-        resultado.resize(altoMax, vector<int>(anchoMax, 0));
+        resultado = vector<vector<int>>(altoMax, vector<int>(anchoMax, 0));
         for (int y = 0; y < altoMax; y++) {
             for (int x = 0; x < anchoMax; x++) {
                 valores.clear();
@@ -263,23 +260,22 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
 
-
 void solicitarProyeccion2D() {
     if (!hayVolumenCargado) {
         cout << "El volumen aun no ha sido cargado en memoria.\n";
         return;
     }
-    
+
     string direccion, criterio, nombreArchivo;
     cout << "Ingrese la direccion de proyeccion (x, y, z): ";
     cin >> direccion;
-    
+
     cout << "Ingrese el criterio de proyeccion (minimo, maximo, promedio, mediana): ";
     cin >> criterio;
-    
+
     cout << "Ingrese el nombre del archivo de salida (.pgm): ";
     cin >> nombreArchivo;
-    
+
     proyeccion2D(direccion, criterio, nombreArchivo);
 }
 
@@ -299,7 +295,6 @@ void mostrarAyudaComando(const string& comando) {
     }
 }
 
-//Main****************************************************************************
 int main() {
     string comando;
     mostrarAyuda();
@@ -317,7 +312,7 @@ int main() {
         } else if (comando == "info_volumen") {
             infoVolumen();
         } else if (comando == "proyeccion2D") {
-        	solicitarProyeccion2D();
+            solicitarProyeccion2D();
         } else if (comando == "ayuda") {
             mostrarAyuda();
         } else if (comando == "ayuda cargar_imagen") {
