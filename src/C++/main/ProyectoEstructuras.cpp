@@ -94,7 +94,9 @@ void cargarVolumen() {
     int numero = 2;
 
     for (int i = 0; i < cantidadImagenes; i++) {
-        string numeroStr = (numero < 10 ? "0" : "") + to_string(numero);
+        char numeroChar = '0' + numero;
+        string numeroStr = "0";
+        numeroStr += numeroChar;
         string nombreArchivo = nombreBase + numeroStr + ".pgm";
         numero += 2;
 
@@ -136,6 +138,7 @@ void cargarVolumen() {
     hayVolumenCargado = true;
     cout << "El volumen " << nombreBase << " ha sido cargado.\n";
 }
+
 
 void infoImagen() {
     if (!hayImagenCargada) {
