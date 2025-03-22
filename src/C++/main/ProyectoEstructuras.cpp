@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <numeric>
 #include "imagen.h"
 #include "volumen.h"
 #include "proyeccion.h"
@@ -193,11 +192,33 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
                     }
                 }
                 if (!valores.empty()) {
-                    if (criterio == "mediana") sort(valores.begin(), valores.end());
-                    resultado[y][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                        : valores[valores.size() / 2];
+                    if (criterio == "mediana") {
+                        sort(valores.begin(), valores.end());
+                    }
+
+                    int resultadoValor = 0;
+
+                    if (criterio == "minimo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] < resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "maximo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] > resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "promedio") {
+                        int suma = 0;
+                        for (int i = 0; i < valores.size(); i++) {
+                            suma += valores[i];
+                        }
+                        resultadoValor = suma / valores.size();
+                    } else {
+                        resultadoValor = valores[valores.size() / 2];
+                    }
+
+                    resultado[y][z] = resultadoValor;
                 }
             }
         }
@@ -213,11 +234,33 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
                     }
                 }
                 if (!valores.empty()) {
-                    if (criterio == "mediana") sort(valores.begin(), valores.end());
-                    resultado[x][z] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                        : valores[valores.size() / 2];
+                    if (criterio == "mediana") {
+                        sort(valores.begin(), valores.end());
+                    }
+
+                    int resultadoValor = 0;
+
+                    if (criterio == "minimo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] < resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "maximo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] > resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "promedio") {
+                        int suma = 0;
+                        for (int i = 0; i < valores.size(); i++) {
+                            suma += valores[i];
+                        }
+                        resultadoValor = suma / valores.size();
+                    } else {
+                        resultadoValor = valores[valores.size() / 2];
+                    }
+
+                    resultado[x][z] = resultadoValor;
                 }
             }
         }
@@ -233,11 +276,33 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
                     }
                 }
                 if (!valores.empty()) {
-                    if (criterio == "mediana") sort(valores.begin(), valores.end());
-                    resultado[y][x] = (criterio == "minimo") ? *min_element(valores.begin(), valores.end())
-                        : (criterio == "maximo") ? *max_element(valores.begin(), valores.end())
-                        : (criterio == "promedio") ? accumulate(valores.begin(), valores.end(), 0) / valores.size()
-                        : valores[valores.size() / 2];
+                    if (criterio == "mediana") {
+                        sort(valores.begin(), valores.end());
+                    }
+
+                    int resultadoValor = 0;
+
+                    if (criterio == "minimo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] < resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "maximo") {
+                        resultadoValor = valores[0];
+                        for (int i = 1; i < valores.size(); i++) {
+                            if (valores[i] > resultadoValor) resultadoValor = valores[i];
+                        }
+                    } else if (criterio == "promedio") {
+                        int suma = 0;
+                        for (int i = 0; i < valores.size(); i++) {
+                            suma += valores[i];
+                        }
+                        resultadoValor = suma / valores.size();
+                    } else {
+                        resultadoValor = valores[valores.size() / 2];
+                    }
+
+                    resultado[y][x] = resultadoValor;
                 }
             }
         }
@@ -263,6 +328,7 @@ void proyeccion2D(string direccion, string criterio, string nombreArchivo) {
     archivo.close();
     cout << "La proyeccion 2D del volumen en memoria ha sido generada y almacenada en el archivo " << nombreArchivo << ".\n";
 }
+
 
 
 void solicitarProyeccion2D() {
