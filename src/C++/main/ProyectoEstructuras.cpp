@@ -8,7 +8,6 @@
 #include "proyeccion.h"
 
 using namespace std;
-
 // Variables globales**********************************************************************************
 Imagen imagenCargada;
 bool hayImagenCargada = false;
