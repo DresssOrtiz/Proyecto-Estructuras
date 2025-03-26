@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -372,40 +373,85 @@ void mostrarAyudaComando(const string& comando) {
 }
 
 int main() {
-    string comando;
+    string linea;
     mostrarAyuda();
 
     while (true) {
         cout << "$ ";
-        getline(cin, comando);
+        getline(cin, linea);
+        if (linea.empty()) continue;
+
+        // divide la línea en tokens
+        istringstream iss (linea);
+        vector<string> tokens;
+        string token;
+        while (iss >> token)
+            tokens.push_back(token);
+
+        if (tokens.empty()) continue;
+
+        string comando;
+        if (tokens[0] == "cargar") {
+            if (tokens.size() >= 2 && tokens[1] == "imagen")
+                comando = "cargar_imagen";
+            else if (tokens.size() >= 2 && tokens[1] == "volumen")
+                comando = "cargar_volumen";
+            else
+                comando = tokens[0];
+        } else if (tokens[0] == "info") {
+            if (tokens.size() >= 2 && tokens[1] == "imagen")
+                comando = "info_imagen";
+            else if (tokens.size() >= 2 && tokens[1] == "volumen")
+                comando = "info_volumen";
+            else
+                comando = tokens[0];
+        } else if (tokens[0] == "ayuda") {
+            if (tokens.size() >= 2)
+                comando = "ayuda " + tokens[1];
+            else
+                comando = "ayuda";
+        } else {
+            comando = tokens[0];
+        }
 
         if (comando == "cargar_imagen") {
-            cargarImagen();
-        } else if (comando == "cargar_volumen") {
-            cargarVolumen();
-        } else if (comando == "info_imagen") {
+            if (tokens.size() > 1) {
+                // ... (code for handling 'cargar_imagen' with more than 1 token)
+            } else {
+                cargarImagen();
+            }
+        } 
+        else if (comando == "cargar_volumen") {
+            if (tokens.size() > 2) {
+                // ... (code for handling 'cargar_volumen' with more than 2 tokens)
+            } else{
+                cargarVolumen();
+            }
+        } // Removed the extra '}' after the else block.
+        else if (comando == "info_imagen") {
             infoImagen();
         } else if (comando == "info_volumen") {
             infoVolumen();
         } else if (comando == "proyeccion2D") {
-            solicitarProyeccion2D();
+            if (tokens.size() > 3) {
+                proyeccion2D(tokens[1], tokens[2], tokens[3]);
+            } else {
+                solicitarProyeccion2D();
+            }
+        } else if (comando == "ayuda cargar_imagen" ||
+                   comando == "ayuda info_imagen" ||
+                   comando == "ayuda cargar_volumen" ||
+                   comando == "ayuda info_volumen" ||
+                   comando == "ayuda proyeccion2D") {
+            mostrarAyudaComando(tokens[1]);
         } else if (comando == "ayuda") {
             mostrarAyuda();
-        } else if (comando == "ayuda cargar_imagen") {
-            cout << "Para cargar una imagen ingrese el comando 'cargar_imagen nombre_imagen.pgm'.\n";
-        } else if (comando == "ayuda info_imagen") {
-            cout << "Ingrese el comando 'info_imagen' para obtener información de la imagen cargada.\n";
-        } else if (comando == "ayuda cargar_volumen") {
-            cout << "Ingrese el comando 'cargar_volumen nombre_base n_im' para cargar un volumen de imagenes.\n";
-        } else if (comando == "ayuda info_volumen") {
-            cout << "Ingrese el comando 'info_volumen' para obtener informacion del volumen cargado.\n";
-        } else if (comando == "ayuda proyeccion2D") {
-            cout << "Ingrese el comando 'proyeccion2D dirección criterio nombre_archivo.pgm' para generar una proyeccion 2D.\n";
         } else if (comando == "salir") {
             break;
         } else {
             cout << "Comando no reconocido. Escriba 'ayuda' para ver la lista de comandos.\n";
         }
-    }
-    return 0;
+        }   
+    return 0; 
+
 }
