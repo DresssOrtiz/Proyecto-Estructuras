@@ -9,24 +9,26 @@ using namespace std;
 
 class ArbolHuffman {
 private:
-    NodoHuffman* raiz;
-    vector<string> codigos;  // codigos[i] contiene el código de la intensidad i
+    // Datos Mínimos
+    NodoHuffman* raiz;               // raíz del árbol de Huffman
+    vector<string> codigos;          // vector de códigos Huffman por intensidad
 
-    // Función auxiliar para generar los códigos desde el árbol
+    // Función auxiliar (privada)
     void generarCodigosAux(NodoHuffman* nodo, string camino);
 
 public:
     // Constructor
     ArbolHuffman();
 
-    // Operaciones del TAD
-    void construirDesdeFrecuencias(unsigned long frecuencias[], int tamano);
-    void generarCodigos();
-    string obtenerCodigo(int intensidad) const;
-    NodoHuffman* obtenerRaiz() const;
-    vector<string> obtenerCodigos() const;
-    void fijarRaiz(NodoHuffman* xRaiz);
-    void fijarCodigos(const vector<string>& nuevosCodigos);
+    // Operaciones
+    NodoHuffman* obtenerRaiz();                            // da la raíz del árbol
+    vector<string> obtenerCodigos();                       // da el vector de códigos
+    void fijarRaiz(NodoHuffman* xRaiz);                    // asigna la raíz
+    void fijarCodigos(vector<string> xCodigos);            // asigna el vector de códigos
+    void construirDesdeFrecuencias(unsigned long xFrecuencias[], int tamano); // construye el árbol
+    void generarCodigos();                                 // genera códigos y llena el vector
+    string obtenerCodigo(int xIntensidad);                 // da el código de una intensidad
+    vector<vector<int>> decodificarBits(string xBits, int xAncho, int xAlto); // reconstruye la imagen
 };
 
 #endif
