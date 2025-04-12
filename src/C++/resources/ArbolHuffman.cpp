@@ -3,7 +3,10 @@
 // Constructor
 ArbolHuffman::ArbolHuffman() {
     raiz = 0;
-    codigos = vector<string>(256, ""); // 256 posiciones, una por cada posible intensidad
+    codigos.resize(256);
+    for (int i = 0; i < 256; i++) {
+        codigos[i] = "";
+    }
 }
 
 // Obtener la raíz del árbol
@@ -36,11 +39,9 @@ string ArbolHuffman::obtenerCodigo(int xIntensidad) {
 
 // Construir el árbol de Huffman a partir de un arreglo de frecuencias
 void ArbolHuffman::construirDesdeFrecuencias(unsigned long xFrecuencias[], int tamano) {
-    // Creamos un arreglo manual para simular una cola de prioridad
     NodoHuffman* nodos[256];
     int total = 0;
 
-    // Crear nodos hoja y almacenarlos
     for (int i = 0; i < tamano; i++) {
         if (xFrecuencias[i] > 0) {
             nodos[total] = new NodoHuffman(i, xFrecuencias[i]);
@@ -48,9 +49,7 @@ void ArbolHuffman::construirDesdeFrecuencias(unsigned long xFrecuencias[], int t
         }
     }
 
-    // Construcción del árbol (simulando la prioridad manualmente)
     while (total > 1) {
-        // Buscar dos nodos con menor frecuencia
         int min1 = 0, min2 = 1;
         if (nodos[min2]->obtenerFrecuencia() < nodos[min1]->obtenerFrecuencia()) {
             int temp = min1;
@@ -68,12 +67,10 @@ void ArbolHuffman::construirDesdeFrecuencias(unsigned long xFrecuencias[], int t
             }
         }
 
-        // Crear nuevo nodo
         NodoHuffman* combinado = new NodoHuffman(-1, nodos[min1]->obtenerFrecuencia() + nodos[min2]->obtenerFrecuencia());
         combinado->fijarIzquierdo(nodos[min1]);
         combinado->fijarDerecho(nodos[min2]);
 
-        // Reemplazar nodos seleccionados con el combinado
         if (min1 < min2) {
             nodos[min1] = combinado;
             nodos[min2] = nodos[total - 1];
@@ -85,7 +82,6 @@ void ArbolHuffman::construirDesdeFrecuencias(unsigned long xFrecuencias[], int t
         total--;
     }
 
-    // El único nodo restante es la raíz
     if (total == 1) {
         raiz = nodos[0];
     }
@@ -98,7 +94,7 @@ void ArbolHuffman::generarCodigos() {
     }
 }
 
-// Recorrido recursivo del árbol para asignar códigos
+// Función auxiliar recursiva para recorrer el árbol y asignar códigos
 void ArbolHuffman::generarCodigosAux(NodoHuffman* nodo, string camino) {
     if (nodo->esHoja()) {
         int intensidad = nodo->obtenerIntensidad();
@@ -132,4 +128,16 @@ vector<vector<int>> ArbolHuffman::decodificarBits(string xBits, int xAncho, int 
         if (actual->esHoja()) {
             pixeles[fila][columna] = actual->obtenerIntensidad();
             columna++;
-            if (columna
+
+            if (columna == xAncho) {
+                columna = 0;
+                fila++;
+                if (fila == xAlto) break;
+            }
+
+            actual = raiz;
+        }
+    }
+
+    return pixeles;
+}
