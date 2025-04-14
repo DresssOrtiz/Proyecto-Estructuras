@@ -416,18 +416,18 @@ int main() {
 
         if (comando == "cargar_imagen") {
             if (tokens.size() > 1) {
-                // ... (code for handling 'cargar_imagen' with more than 1 token)
+                
             } else {
                 cargarImagen();
             }
         } 
         else if (comando == "cargar_volumen") {
             if (tokens.size() > 2) {
-                // ... (code for handling 'cargar_volumen' with more than 2 tokens)
+                
             } else{
                 cargarVolumen();
             }
-        } // Removed the extra '}' after the else block.
+        } 
         else if (comando == "info_imagen") {
             infoImagen();
         } else if (comando == "info_volumen") {
