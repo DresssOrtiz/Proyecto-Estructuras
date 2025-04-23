@@ -7,6 +7,8 @@
 #include "imagen.h"
 #include "volumen.h"
 #include "proyeccion.h"
+#include "ArbolHuffman.h"
+#include <bitset> //sirve para manipular y convertir fácilmente secuencias de bits como cadenas binarias en valores numéricos y viceversa.
 
 using namespace std;
 // Variables globales**********************************************************************************
@@ -30,6 +32,8 @@ void mostrarAyuda() {
     cout << "  info_imagen\n";
     cout << "  info_volumen\n";
     cout << "  proyeccion2D\n";
+    cout << "  codificar_imagen\n";
+    cout << "  decodificar_archivo\n";
     cout << "  ayuda\n";
     cout << "  salir\n";
 }
@@ -372,6 +376,125 @@ void mostrarAyudaComando(const string& comando) {
     }
 }
 
+void codificarImagen(const string& nombreArchivo) {
+    if (!hayImagenCargada) {
+        cout << "No hay una imagen cargada en memoria.\n";
+        return;
+    }
+
+    int ancho = imagenCargada.obtenerAncho();
+    int alto = imagenCargada.obtenerAlto();
+    int maxVal = 255;
+    const vector<vector<int>>& pixeles = imagenCargada.obtenerPixeles();
+
+    // Calcular frecuencias
+    unsigned long frecuencias[256] = {0};
+    for (int i = 0; i < alto; i++) {
+        for (int j = 0; j < ancho; j++) {
+            frecuencias[pixeles[i][j]]++;
+        }
+    }
+
+    // Construir árbol de Huffman
+    ArbolHuffman arbol;
+    arbol.construirDesdeFrecuencias(frecuencias, 256);
+    arbol.generarCodigos();
+    vector<string> codigos = arbol.obtenerCodigos();
+
+    // Generar string binario
+    string bits;
+    for (int i = 0; i < alto; i++) {
+        for (int j = 0; j < ancho; j++) {
+            bits += codigos[pixeles[i][j]];
+        }
+    }
+
+    // Guardar en archivo binario
+    ofstream salida(nombreArchivo, ios::binary);
+    if (!salida) {
+        cout << "No se pudo crear el archivo.\n";
+        return;
+    }
+
+    unsigned short W = ancho, H = alto;
+    unsigned char M = (unsigned char)maxVal;
+    salida.write(reinterpret_cast<char*>(&W), sizeof(W));
+    salida.write(reinterpret_cast<char*>(&H), sizeof(H));
+    salida.write(reinterpret_cast<char*>(&M), sizeof(M));
+
+    for (int i = 0; i <= M; i++) {
+        salida.write(reinterpret_cast<char*>(&frecuencias[i]), sizeof(unsigned long));
+    }
+
+    // Empaquetar bits en bytes
+    string byteStr = "";
+    for (char c : bits) {
+        byteStr += c;
+        if (byteStr.size() == 8) {
+            bitset<8> b(byteStr);
+            unsigned char byte = (unsigned char)b.to_ulong();
+            salida.write(reinterpret_cast<char*>(&byte), sizeof(byte));
+            byteStr.clear();
+        }
+    }
+    // Rellenar último byte si es necesario
+    if (!byteStr.empty()) {
+        while (byteStr.size() < 8) byteStr += '0';
+        bitset<8> b(byteStr);
+        unsigned char byte = (unsigned char)b.to_ulong();
+        salida.write(reinterpret_cast<char*>(&byte), sizeof(byte));
+    }
+
+    salida.close();
+    cout << "La imagen en memoria ha sido codificada exitosamente y almacenada en el archivo " << nombreArchivo << ".\n";
+}
+
+void decodificarArchivo(const string& nombreArchivoHuf, const string& nombreImagenPGM) {
+    ifstream entrada(nombreArchivoHuf, ios::binary);
+    if (!entrada) {
+        cout << "El archivo " << nombreArchivoHuf << " no ha podido ser decodificado.\n";
+        return;
+    }
+
+    unsigned short W, H;
+    unsigned char M;
+    entrada.read(reinterpret_cast<char*>(&W), sizeof(W));
+    entrada.read(reinterpret_cast<char*>(&H), sizeof(H));
+    entrada.read(reinterpret_cast<char*>(&M), sizeof(M));
+
+    unsigned long frecuencias[256] = {0};
+    for (int i = 0; i <= M; i++) {
+        entrada.read(reinterpret_cast<char*>(&frecuencias[i]), sizeof(unsigned long));
+    }
+
+    string bits = "";
+    char byte;
+    while (entrada.read(&byte, sizeof(byte))) {
+        bitset<8> b((unsigned char)byte);
+        bits += b.to_string();
+    }
+
+    entrada.close();
+
+    ArbolHuffman arbol;
+    arbol.construirDesdeFrecuencias(frecuencias, 256);
+    arbol.generarCodigos();
+
+    vector<vector<int>> pixeles = arbol.decodificarBits(bits, W, H);
+
+    ofstream salida(nombreImagenPGM);
+    salida << "P2\n" << W << " " << H << "\n255\n";
+    for (int i = 0; i < H; i++) {
+        for (int j = 0; j < W; j++) {
+            salida << pixeles[i][j] << " ";
+        }
+        salida << "\n";
+    }
+    salida.close();
+
+    cout << "El archivo " << nombreArchivoHuf << " ha sido decodificado exitosamente, y la imagen correspondiente se ha almacenado en el archivo " << nombreImagenPGM << ".\n";
+}
+
 int main() {
     string linea;
     mostrarAyuda();
@@ -448,7 +571,18 @@ int main() {
             mostrarAyuda();
         } else if (comando == "salir") {
             break;
-        } else {
+        } 
+        
+        else if (comando == "codificar_imagen") {
+            if (tokens.size() >= 2) codificarImagen(tokens[1]);
+            else cout << "Uso: codificar_imagen nombre_archivo.huf\n";
+        }
+        else if (comando == "decodificar_archivo") {
+            if (tokens.size() >= 3) decodificarArchivo(tokens[1], tokens[2]);
+            else cout << "Uso: decodificar_archivo nombre_archivo.huf nombre_imagen.pgm\n";
+        }
+
+        else {
             cout << "Comando no reconocido. Escriba 'ayuda' para ver la lista de comandos.\n";
         }
         }   
