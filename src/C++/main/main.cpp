@@ -426,24 +426,9 @@ void codificarImagen(const string& nombreArchivo) {
         salida.write(reinterpret_cast<char*>(&frecuencias[i]), sizeof(unsigned long));
     }
 
-    // Empaquetar bits en bytes
-    string byteStr = "";
-    for (char c : bits) {
-        byteStr += c;
-        if (byteStr.size() == 8) {
-            bitset<8> b(byteStr);
-            unsigned char byte = (unsigned char)b.to_ulong();
-            salida.write(reinterpret_cast<char*>(&byte), sizeof(byte));
-            byteStr.clear();
-        }
-    }
-    // Rellenar último byte si es necesario
-    if (!byteStr.empty()) {
-        while (byteStr.size() < 8) byteStr += '0';
-        bitset<8> b(byteStr);
-        unsigned char byte = (unsigned char)b.to_ulong();
-        salida.write(reinterpret_cast<char*>(&byte), sizeof(byte));
-    }
+
+// Escribir la secuencia de bits directamente (sin empaquetar en bytes)
+salida.write(bits.c_str(), bits.size());
 
     salida.close();
     cout << "La imagen en memoria ha sido codificada exitosamente y almacenada en el archivo " << nombreArchivo << ".\n";
@@ -505,7 +490,7 @@ int main() {
         if (linea.empty()) continue;
 
         // divide la línea en tokens
-        istringstream iss (linea);
+        istringstream iss(linea);
         vector<string> tokens;
         string token;
         while (iss >> token)
@@ -513,79 +498,130 @@ int main() {
 
         if (tokens.empty()) continue;
 
-        string comando;
-        if (tokens[0] == "cargar") {
-            if (tokens.size() >= 2 && tokens[1] == "imagen")
-                comando = "cargar_imagen";
-            else if (tokens.size() >= 2 && tokens[1] == "volumen")
-                comando = "cargar_volumen";
-            else
-                comando = tokens[0];
-        } else if (tokens[0] == "info") {
-            if (tokens.size() >= 2 && tokens[1] == "imagen")
-                comando = "info_imagen";
-            else if (tokens.size() >= 2 && tokens[1] == "volumen")
-                comando = "info_volumen";
-            else
-                comando = tokens[0];
-        } else if (tokens[0] == "ayuda") {
-            if (tokens.size() >= 2)
-                comando = "ayuda " + tokens[1];
-            else
-                comando = "ayuda";
-        } else {
-            comando = tokens[0];
-        }
+        string comando = tokens[0];
 
-        if (comando == "cargar_imagen") {
-            if (tokens.size() > 1) {
-                
+        // =================== CARGAR ===================
+        if (comando == "cargar") {
+            if (tokens.size() >= 3 && tokens[1] == "imagen") {
+                string nombreArchivo = tokens[2];
+                ifstream archivo(nombreArchivo);
+                if (!archivo) {
+                    cout << "La imagen " << nombreArchivo << " no ha podido ser cargada.\n";
+                } else {
+                    string formato;
+                    int ancho, alto, maxValor;
+                    archivo >> formato >> ancho >> alto >> maxValor;
+
+                    if (formato != "P2") {
+                        cout << "Formato de imagen incorrecto.\n";
+                    } else {
+                        vector<vector<int>> pixeles(alto, vector<int>(ancho));
+                        for (int i = 0; i < alto; i++)
+                            for (int j = 0; j < ancho; j++)
+                                archivo >> pixeles[i][j];
+
+                        imagenCargada.fijarNombre_imagen(nombreArchivo);
+                        imagenCargada.fijarDimensiones(ancho, alto);
+                        imagenCargada.fijarPixeles(pixeles);
+                        hayImagenCargada = true;
+                        cout << "La imagen " << nombreArchivo << " ha sido cargada.\n";
+                    }
+                    archivo.close();
+                }
+            } else if (tokens.size() >= 4 && tokens[1] == "volumen") {
+                string nombreBase = tokens[2];
+                int cantidadImagenes = stoi(tokens[3]);
+
+                if (cantidadImagenes < 1 || cantidadImagenes > 99) {
+                    cout << "Cantidad de imagenes invalida. Debe estar entre 1 y 99.\n";
+                } else {
+                    volumenCargado.fijarNombre_volumen(nombreBase);
+                    vector<Imagen> imagenes;
+                    int numero = 2;
+                    for (int i = 0; i < cantidadImagenes; i++) {
+                        string numeroStr = (numero < 10) ? "0" + to_string(numero) : to_string(numero);
+                        string nombreArchivo = nombreBase + numeroStr + ".pgm";
+                        numero += 2;
+
+                        ifstream archivo(nombreArchivo);
+                        if (!archivo) {
+                            cout << "Error al cargar el archivo: " << nombreArchivo << ".\n";
+                            break;
+                        }
+
+                        string formato;
+                        int ancho, alto, maxValor;
+                        archivo >> formato >> ancho >> alto >> maxValor;
+
+                        if (formato != "P2") {
+                            cout << "Formato incorrecto en " << nombreArchivo << ".\n";
+                            break;
+                        }
+
+                        Imagen img;
+                        img.fijarNombre_imagen(nombreArchivo);
+                        img.fijarDimensiones(ancho, alto);
+                        vector<vector<int>> pixeles(alto, vector<int>(ancho));
+                        for (int y = 0; y < alto; y++)
+                            for (int x = 0; x < ancho; x++)
+                                archivo >> pixeles[y][x];
+                        img.fijarPixeles(pixeles);
+                        imagenes.push_back(img);
+                        archivo.close();
+                    }
+
+                    volumenCargado.fijarImagenes(imagenes);
+                    hayVolumenCargado = true;
+                    cout << "El volumen " << nombreBase << " ha sido cargado.\n";
+                }
             } else {
-                cargarImagen();
+                cout << "Uso: cargar imagen archivo.pgm | cargar volumen base n_im\n";
             }
-        } 
-        else if (comando == "cargar_volumen") {
-            if (tokens.size() > 2) {
-                
-            } else{
-                cargarVolumen();
+
+        // =================== INFO ===================
+        } else if (comando == "info") {
+            if (tokens.size() >= 2 && tokens[1] == "imagen") {
+                infoImagen();
+            } else if (tokens.size() >= 2 && tokens[1] == "volumen") {
+                infoVolumen();
+            } else {
+                cout << "Uso: info imagen | info volumen\n";
             }
-        } 
-        else if (comando == "info_imagen") {
-            infoImagen();
-        } else if (comando == "info_volumen") {
-            infoVolumen();
+
+        // =================== PROYECCIÓN ===================
         } else if (comando == "proyeccion2D") {
-            if (tokens.size() > 3) {
+            if (tokens.size() >= 4) {
                 proyeccion2D(tokens[1], tokens[2], tokens[3]);
             } else {
                 solicitarProyeccion2D();
             }
-        } else if (comando == "ayuda cargar_imagen" ||
-                   comando == "ayuda info_imagen" ||
-                   comando == "ayuda cargar_volumen" ||
-                   comando == "ayuda info_volumen" ||
-                   comando == "ayuda proyeccion2D") {
-            mostrarAyudaComando(tokens[1]);
+
+        // =================== CODIFICAR ===================
+        } else if (comando == "codificar") {
+            if (tokens.size() >= 2) codificarImagen(tokens[1]);
+            else cout << "Uso: codificar archivo.huf\n";
+
+        // =================== DECODIFICAR ===================
+        } else if (comando == "decodificar") {
+            if (tokens.size() >= 3) decodificarArchivo(tokens[1], tokens[2]);
+            else cout << "Uso: decodificar archivo.huf salida.pgm\n";
+
+        // =================== AYUDA ===================
         } else if (comando == "ayuda") {
-            mostrarAyuda();
+            if (tokens.size() >= 2)
+                mostrarAyudaComando(tokens[1]);
+            else
+                mostrarAyuda();
+
+        // =================== SALIR ===================
         } else if (comando == "salir") {
             break;
-        } 
-        
-        else if (comando == "codificar_imagen") {
-            if (tokens.size() >= 2) codificarImagen(tokens[1]);
-            else cout << "Uso: codificar_imagen nombre_archivo.huf\n";
-        }
-        else if (comando == "decodificar_archivo") {
-            if (tokens.size() >= 3) decodificarArchivo(tokens[1], tokens[2]);
-            else cout << "Uso: decodificar_archivo nombre_archivo.huf nombre_imagen.pgm\n";
-        }
 
-        else {
+        // =================== ERROR ===================
+        } else {
             cout << "Comando no reconocido. Escriba 'ayuda' para ver la lista de comandos.\n";
         }
-        }   
-    return 0; 
+    }
 
+    return 0;
 }
