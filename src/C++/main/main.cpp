@@ -8,7 +8,9 @@
 #include "volumen.h"
 #include "proyeccion.h"
 #include "ArbolHuffman.h"
-#include <bitset> //sirve para manipular y convertir fácilmente secuencias de bits como cadenas binarias en valores numéricos y viceversa.
+#include <bitset> //sirve para manipular y convertir fácilmente secuencias de bits como cadenas binarias en valores numericos
+#include "GrafoImagen.h"
+#include "Segmentador.h"
 
 using namespace std;
 // Variables globales**********************************************************************************
@@ -605,6 +607,39 @@ int main() {
         } else if (comando == "decodificar") {
             if (tokens.size() >= 3) decodificarArchivo(tokens[1], tokens[2]);
             else cout << "Uso: decodificar archivo.huf salida.pgm\n";
+
+                    // =================== SEGMENTAR ===================
+        } else if (comando == "segmentar") {
+            if (!hayImagenCargada) {
+                cout << "No hay una imagen cargada en memoria.\n";
+            } else if (tokens.size() < 5 || (tokens.size() - 2) % 3 != 0) {
+                cout << "Uso: segmentar salida_imagen.pgm sx1 sy1 sl1 [sx2 sy2 sl2 ...]\n";
+            } else {
+                string nombreSalida = tokens[1];
+                vector<tuple<int, int, int>> semillas;
+
+                for (size_t i = 2; i + 2 < tokens.size(); i += 3) {
+                    int x = stoi(tokens[i]);
+                    int y = stoi(tokens[i + 1]);
+                    int l = stoi(tokens[i + 2]);
+                    semillas.emplace_back(x, y, l);
+                }
+
+                // crea el grafo
+                GrafoImagen grafo;
+                grafo.fijarDimensiones(imagenCargada.obtenerAncho(), imagenCargada.obtenerAlto());
+                grafo.fijarPixeles(imagenCargada.obtenerPixeles());
+                grafo.construirGrafo();
+
+                // segmentador
+                Segmentador segmentador;
+                segmentador.fijarGrafo(grafo);
+                segmentador.fijarSemillas(semillas);
+                segmentador.segmentar();
+                segmentador.guardarComoPGM(nombreSalida);
+
+                cout << "La imagen en memoria fue segmentada correctamente y almacenada en el archivo " << nombreSalida << ".\n";
+            }
 
         // =================== AYUDA ===================
         } else if (comando == "ayuda") {
