@@ -616,14 +616,16 @@ int main() {
                 cout << "Uso: segmentar salida_imagen.pgm sx1 sy1 sl1 [sx2 sy2 sl2 ...]\n";
             } else {
                 string nombreSalida = tokens[1];
-                vector<tuple<int, int, int>> semillas;
+                vector<Semilla> semillas;
 
                 for (size_t i = 2; i + 2 < tokens.size(); i += 3) {
-                    int x = stoi(tokens[i]);
-                    int y = stoi(tokens[i + 1]);
-                    int l = stoi(tokens[i + 2]);
-                    semillas.emplace_back(x, y, l);
+                    Semilla s;
+                    s.x = stoi(tokens[i]);
+                    s.y = stoi(tokens[i + 1]);
+                    s.etiqueta = stoi(tokens[i + 2]);
+                    semillas.push_back(s);
                 }
+
 
                 // crea el grafo
                 GrafoImagen grafo;
