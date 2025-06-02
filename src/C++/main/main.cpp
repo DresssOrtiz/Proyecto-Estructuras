@@ -380,7 +380,7 @@ void mostrarAyudaComando(const string& comando) {
 
 void codificarImagen(const string& nombreArchivo) {
     if (!hayImagenCargada) {
-        cout << "No hay una imagen cargada en memoria.\n";
+        cout << "No hay una imagen cargada en memoria." << endl;
         return;
     }
 
@@ -397,13 +397,13 @@ void codificarImagen(const string& nombreArchivo) {
         }
     }
 
-    // Construir árbol de Huffman
+      // Construir arbol de Huffman
     ArbolHuffman arbol;
     arbol.construirDesdeFrecuencias(frecuencias, 256);
     arbol.generarCodigos();
     vector<string> codigos = arbol.obtenerCodigos();
 
-    // Generar string binario
+    // Generar secuencia de bits
     string bits;
     for (int i = 0; i < alto; i++) {
         for (int j = 0; j < ancho; j++) {
@@ -411,10 +411,9 @@ void codificarImagen(const string& nombreArchivo) {
         }
     }
 
-    // Guardar en archivo binario
     ofstream salida(nombreArchivo, ios::binary);
     if (!salida) {
-        cout << "No se pudo crear el archivo.\n";
+        cout << "No se pudo crear el archivo." << endl;
         return;
     }
 
@@ -423,17 +422,29 @@ void codificarImagen(const string& nombreArchivo) {
     salida.write(reinterpret_cast<char*>(&W), sizeof(W));
     salida.write(reinterpret_cast<char*>(&H), sizeof(H));
     salida.write(reinterpret_cast<char*>(&M), sizeof(M));
-
     for (int i = 0; i <= M; i++) {
         salida.write(reinterpret_cast<char*>(&frecuencias[i]), sizeof(unsigned long));
     }
 
-
-// Escribir la secuencia de bits directamente (sin empaquetar en bytes)
-salida.write(bits.c_str(), bits.size());
+    // Escribir bits reales empaquetados
+    uint8_t buffer = 0;
+    int count = 0;
+    for (char bit : bits) {
+        buffer = (buffer << 1) | (bit - '0');
+        count++;
+        if (count == 8) {
+            salida.write(reinterpret_cast<const char*>(&buffer), 1);
+            buffer = 0;
+            count = 0;
+        }
+    }
+    if (count > 0) {
+        buffer <<= (8 - count);
+        salida.write(reinterpret_cast<const char*>(&buffer), 1);
+    }
 
     salida.close();
-    cout << "La imagen en memoria ha sido codificada exitosamente y almacenada en el archivo " << nombreArchivo << ".\n";
+    cout << "La imagen en memoria ha sido codificada exitosamente y almacenada en el archivo " << nombreArchivo << "." << endl;
 }
 
 void decodificarArchivo(const string& nombreArchivoHuf, const string& nombreImagenPGM) {
