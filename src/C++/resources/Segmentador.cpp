@@ -1,8 +1,18 @@
 #include "Segmentador.h"
 #include <fstream>
-#include <queue>
-#include <algorithm> // para sort
-#include <climits>   // para INT_MAX
+
+// Estructura auxiliar para cola de prioridad simulada
+struct EntradaCola {
+    int costo;
+    int x;
+    int y;
+    int etiqueta;
+};
+
+// Comparador tradicional (reemplazo de lambda)
+bool compararEntradas(const EntradaCola& a, const EntradaCola& b) {
+    return a.costo > b.costo;
+}
 
 // Constructor
 Segmentador::Segmentador() {}
@@ -10,14 +20,14 @@ Segmentador::Segmentador() {}
 // Fijar el grafo
 void Segmentador::fijarGrafo(GrafoImagen xGrafo) {
     grafo = xGrafo;
-    pair<int, int> dimensiones = grafo.obtenerDimensiones();
-    int ancho = dimensiones.first;
-    int alto = dimensiones.second;
+    Posicion dimensiones = grafo.obtenerDimensiones();
+    int ancho = dimensiones.x;
+    int alto = dimensiones.y;
     etiquetas = vector<vector<int> >(alto, vector<int>(ancho, 0));
 }
 
 // Fijar las semillas
-void Segmentador::fijarSemillas(const vector<tuple<int, int, int> >& xSemillas) {
+void Segmentador::fijarSemillas(const vector<Semilla>& xSemillas) {
     semillas = xSemillas;
 }
 
@@ -32,7 +42,7 @@ GrafoImagen Segmentador::obtenerGrafo() const {
 }
 
 // Obtener semillas
-vector<tuple<int, int, int> > Segmentador::obtenerSemillas() const {
+vector<Semilla> Segmentador::obtenerSemillas() const {
     return semillas;
 }
 
@@ -43,59 +53,62 @@ vector<vector<int> > Segmentador::obtenerEtiquetas() const {
 
 // Segmentar con Dijkstra desde múltiples semillas
 void Segmentador::segmentar() {
-    pair<int, int> dimensiones = grafo.obtenerDimensiones();
-    int ancho = dimensiones.first;
-    int alto = dimensiones.second;
+    const int INFINITO = 999999;
 
-    // Inicializar etiquetas en 0 y distancias en infinito
+    Posicion dimensiones = grafo.obtenerDimensiones();
+    int ancho = dimensiones.x;
+    int alto = dimensiones.y;
+
     etiquetas = vector<vector<int> >(alto, vector<int>(ancho, 0));
-    vector<vector<int> > distancia(alto, vector<int>(ancho, INT_MAX));
+    vector<vector<int> > distancia(alto, vector<int>(ancho, INFINITO));
 
-    // Cola de prioridad como vector: (costo acumulado, x, y, etiqueta)
-    vector<tuple<int, int, int, int> > cola;
+    vector<EntradaCola> cola;
 
-    // Insertar semillas en la cola
     for (int i = 0; i < semillas.size(); i++) {
-        int x = get<0>(semillas[i]);
-        int y = get<1>(semillas[i]);
-        int l = get<2>(semillas[i]);
+        int x = semillas[i].x;
+        int y = semillas[i].y;
+        int l = semillas[i].etiqueta;
 
         if (grafo.esValido(x, y)) {
             distancia[y][x] = 0;
             etiquetas[y][x] = l;
-            cola.push_back(make_tuple(0, x, y, l));
+            EntradaCola entrada;
+            entrada.costo = 0;
+            entrada.x = x;
+            entrada.y = y;
+            entrada.etiqueta = l;
+            cola.push_back(entrada);
         }
     }
 
-    // Mientras haya elementos en la cola
     while (!cola.empty()) {
-        // Ordenar para que el menor esté al final
-        sort(cola.begin(), cola.end(), [](const tuple<int, int, int, int>& a, const tuple<int, int, int, int>& b) {
-            return get<0>(a) > get<0>(b);
-        });
+        sort(cola.begin(), cola.end(), compararEntradas);
 
-        // Extraer el nodo con menor costo
-        tuple<int, int, int, int> actual = cola.back();
+        EntradaCola actual = cola.back();
         cola.pop_back();
 
-        int costo = get<0>(actual);
-        int x = get<1>(actual);
-        int y = get<2>(actual);
-        int etiqueta = get<3>(actual);
+        int costo = actual.costo;
+        int x = actual.x;
+        int y = actual.y;
+        int etiqueta = actual.etiqueta;
 
-        // Revisar vecinos
-        vector< pair< pair<int, int>, int > > vecinos = grafo.obtenerVecinos(x, y);
+        vector<Arista> vecinos = grafo.obtenerVecinos(x, y);
         for (int i = 0; i < vecinos.size(); i++) {
-            int nx = vecinos[i].first.first;
-            int ny = vecinos[i].first.second;
-            int costoVecino = vecinos[i].second;
+            int nx = vecinos[i].destino.x;
+            int ny = vecinos[i].destino.y;
+            int costoVecino = vecinos[i].costo;
 
             int nuevoCosto = costo + costoVecino;
 
             if (nuevoCosto < distancia[ny][nx]) {
                 distancia[ny][nx] = nuevoCosto;
                 etiquetas[ny][nx] = etiqueta;
-                cola.push_back(make_tuple(nuevoCosto, nx, ny, etiqueta));
+                EntradaCola nuevo;
+                nuevo.costo = nuevoCosto;
+                nuevo.x = nx;
+                nuevo.y = ny;
+                nuevo.etiqueta = etiqueta;
+                cola.push_back(nuevo);
             }
         }
     }
@@ -103,9 +116,9 @@ void Segmentador::segmentar() {
 
 // Guardar la imagen segmentada como archivo PGM
 void Segmentador::guardarComoPGM(const string& nombreArchivo) {
-    pair<int, int> dimensiones = grafo.obtenerDimensiones();
-    int ancho = dimensiones.first;
-    int alto = dimensiones.second;
+    Posicion dimensiones = grafo.obtenerDimensiones();
+    int ancho = dimensiones.x;
+    int alto = dimensiones.y;
 
     ofstream archivo(nombreArchivo.c_str());
     if (!archivo.is_open()) return;
@@ -121,4 +134,3 @@ void Segmentador::guardarComoPGM(const string& nombreArchivo) {
 
     archivo.close();
 }
-
