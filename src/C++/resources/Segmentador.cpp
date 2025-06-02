@@ -1,7 +1,6 @@
 #include "Segmentador.h"
 #include <fstream>
 
-// Estructura auxiliar para cola de prioridad simulada
 struct EntradaCola {
     int costo;
     int x;
@@ -9,15 +8,12 @@ struct EntradaCola {
     int etiqueta;
 };
 
-// Comparador tradicional (reemplazo de lambda)
 bool compararEntradas(const EntradaCola& a, const EntradaCola& b) {
     return a.costo > b.costo;
 }
 
-// Constructor
 Segmentador::Segmentador() {}
 
-// Fijar el grafo
 void Segmentador::fijarGrafo(GrafoImagen xGrafo) {
     grafo = xGrafo;
     Posicion dimensiones = grafo.obtenerDimensiones();
@@ -26,32 +22,18 @@ void Segmentador::fijarGrafo(GrafoImagen xGrafo) {
     etiquetas = vector<vector<int> >(alto, vector<int>(ancho, 0));
 }
 
-// Fijar las semillas
 void Segmentador::fijarSemillas(const vector<Semilla>& xSemillas) {
     semillas = xSemillas;
 }
 
-// Fijar etiquetas manualmente (opcional)
-void Segmentador::fijarEtiquetas(const vector<vector<int> >& xEtiquetas) {
-    etiquetas = xEtiquetas;
-}
-
-// Obtener grafo
 GrafoImagen Segmentador::obtenerGrafo() const {
     return grafo;
 }
 
-// Obtener semillas
 vector<Semilla> Segmentador::obtenerSemillas() const {
     return semillas;
 }
 
-// Obtener etiquetas
-vector<vector<int> > Segmentador::obtenerEtiquetas() const {
-    return etiquetas;
-}
-
-// Segmentar con Dijkstra desde múltiples semillas
 void Segmentador::segmentar() {
     const int INFINITO = 999999;
 
@@ -72,11 +54,7 @@ void Segmentador::segmentar() {
         if (grafo.esValido(x, y)) {
             distancia[y][x] = 0;
             etiquetas[y][x] = l;
-            EntradaCola entrada;
-            entrada.costo = 0;
-            entrada.x = x;
-            entrada.y = y;
-            entrada.etiqueta = l;
+            EntradaCola entrada = {0, x, y, l};
             cola.push_back(entrada);
         }
     }
@@ -103,18 +81,13 @@ void Segmentador::segmentar() {
             if (nuevoCosto < distancia[ny][nx]) {
                 distancia[ny][nx] = nuevoCosto;
                 etiquetas[ny][nx] = etiqueta;
-                EntradaCola nuevo;
-                nuevo.costo = nuevoCosto;
-                nuevo.x = nx;
-                nuevo.y = ny;
-                nuevo.etiqueta = etiqueta;
+                EntradaCola nuevo = {nuevoCosto, nx, ny, etiqueta};
                 cola.push_back(nuevo);
             }
         }
     }
 }
 
-// Guardar la imagen segmentada como archivo PGM
 void Segmentador::guardarComoPGM(const string& nombreArchivo) {
     Posicion dimensiones = grafo.obtenerDimensiones();
     int ancho = dimensiones.x;
