@@ -1,5 +1,6 @@
 #include "Segmentador.h"
 #include <fstream>
+#include <algorithm>
 
 struct EntradaCola {
     int costo;
