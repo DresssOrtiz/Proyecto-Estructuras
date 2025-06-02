@@ -2,9 +2,17 @@
 #define GRAFOIMAGEN_H
 
 #include <vector>
-#include <utility> // para pair
-
 using namespace std;
+
+struct Posicion {
+    int x;
+    int y;
+};
+
+struct Arista {
+    Posicion destino;
+    int costo;
+};
 
 class GrafoImagen {
 private:
@@ -12,7 +20,7 @@ private:
     int alto;
     int ancho;
     vector<vector<int> > pixeles;
-    vector<vector< vector< pair< pair<int, int>, int > > > > aristas;
+    vector<vector< vector<Arista> > > aristas;
 
 public:
     // Constructor
@@ -21,15 +29,15 @@ public:
     // Operaciones
     void fijarDimensiones(int xAncho, int xAlto);
     void fijarPixeles(const vector<vector<int> >& xPixeles);
-    void fijarAristas(const vector<vector< vector< pair< pair<int, int>, int > > > >& xAristas);
+    void fijarAristas(const vector<vector< vector<Arista> > >& xAristas);
 
-    pair<int, int> obtenerDimensiones() const;
+    Posicion obtenerDimensiones() const;
     vector<vector<int> > obtenerPixeles() const;
-    vector<vector< vector< pair< pair<int, int>, int > > > > obtenerAristas() const;
+    vector<vector< vector<Arista> > > obtenerAristas() const;
 
     void construirGrafo();
-    vector< pair< pair<int, int>, int > > obtenerVecinos(int x, int y) const;
-    int obtenerCosto(pair<int, int> u, pair<int, int> v) const;
+    vector<Arista> obtenerVecinos(int x, int y) const;
+    int obtenerCosto(Posicion u, Posicion v) const;
     bool esValido(int x, int y) const;
 };
 
