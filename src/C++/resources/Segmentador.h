@@ -2,17 +2,22 @@
 #define SEGMENTADOR_H
 
 #include <vector>
-#include <tuple>
 #include <string>
 #include "GrafoImagen.h"
 
 using namespace std;
 
+struct Semilla {
+    int x;
+    int y;
+    int etiqueta;
+};
+
 class Segmentador {
 private:
     // Datos mínimos
     GrafoImagen grafo;
-    vector<tuple<int, int, int> > semillas;
+    vector<Semilla> semillas;
     vector<vector<int> > etiquetas;
 
 public:
@@ -21,11 +26,11 @@ public:
 
     // Operaciones
     void fijarGrafo(GrafoImagen xGrafo);
-    void fijarSemillas(const vector<tuple<int, int, int> >& xSemillas);
+    void fijarSemillas(const vector<Semilla>& xSemillas);
     void fijarEtiquetas(const vector<vector<int> >& xEtiquetas);
 
     GrafoImagen obtenerGrafo() const;
-    vector<tuple<int, int, int> > obtenerSemillas() const;
+    vector<Semilla> obtenerSemillas() const;
     vector<vector<int> > obtenerEtiquetas() const;
 
     void segmentar();
@@ -33,4 +38,3 @@ public:
 };
 
 #endif
-
