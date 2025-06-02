@@ -20,7 +20,7 @@ void Segmentador::fijarGrafo(GrafoImagen xGrafo) {
     Posicion dimensiones = grafo.obtenerDimensiones();
     int ancho = dimensiones.x;
     int alto = dimensiones.y;
-    etiquetas = vector<vector<int> >(alto, vector<int>(ancho, 0));
+    etiquetas = vector<vector<int>>(alto, vector<int>(ancho, 0));
 }
 
 void Segmentador::fijarSemillas(const vector<Semilla>& xSemillas) {
@@ -42,9 +42,8 @@ void Segmentador::segmentar() {
     int ancho = dimensiones.x;
     int alto = dimensiones.y;
 
-    etiquetas = vector<vector<int> >(alto, vector<int>(ancho, 0));
-    vector<vector<int> > distancia(alto, vector<int>(ancho, INFINITO));
-
+    etiquetas = vector<vector<int>>(alto, vector<int>(ancho, 0));
+    vector<vector<int>> distancia(alto, vector<int>(ancho, INFINITO));
     vector<EntradaCola> cola;
 
     for (int i = 0; i < semillas.size(); i++) {
@@ -99,12 +98,29 @@ void Segmentador::guardarComoPGM(const string& nombreArchivo) {
 
     archivo << "P2\n" << ancho << " " << alto << "\n255\n";
 
+    // Escalado automático de etiquetas
+    int minEtiqueta = 999999, maxEtiqueta = -1;
     for (int y = 0; y < alto; y++) {
         for (int x = 0; x < ancho; x++) {
-            archivo << etiquetas[y][x] << " ";
+            int val = etiquetas[y][x];
+            if (val < minEtiqueta) minEtiqueta = val;
+            if (val > maxEtiqueta) maxEtiqueta = val;
+        }
+    }
+
+    int rango = maxEtiqueta - minEtiqueta;
+    if (rango == 0) rango = 1;
+
+    for (int y = 0; y < alto; y++) {
+        for (int x = 0; x < ancho; x++) {
+            int valorEscalado = (etiquetas[y][x] - minEtiqueta) * 255 / rango;
+            archivo << valorEscalado << " ";
         }
         archivo << "\n";
     }
 
     archivo.close();
 }
+
+
+
